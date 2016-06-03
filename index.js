@@ -33,6 +33,24 @@ function getBoundingClientRect (node) {
 
   if ('function' === typeof node.getBoundingClientRect) {
     rect = node.getBoundingClientRect();
+    
+    if (rect === null) return null;
+    
+    if (node instanceof Range) {
+      var computedStyle = getComputedStyle(node.commonAncestorContainer.parentNode, null);
+      var fontSize = computedStyle.getPropertyValue('font-size');
+      
+      if (fontSize < rect.width) {
+        rect = {
+          width: fontSize,
+          height: fontSize,
+          left: rect.left,
+          right: rect.left + fontSize,
+          top: rect.top,
+          bottom: rect.bottom + fontSize
+        };
+      }
+    }
 
     if (node.startContainer && rect.left === 0 && rect.top === 0) {
       // Range instances sometimes report all `0`s
